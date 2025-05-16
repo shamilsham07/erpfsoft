@@ -1,0 +1,76 @@
+.sidebar-side:hover{
+
+   transform: scale(1);
+    transition: .6s ease-in-out;
+
+}
+.rotate{
+    transform: rotate(90deg);
+  transition: transform 0.3s ease-in-out;
+  display: block;
+}
+.input-search{
+
+  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+
+}
+.input-search input:focus-visible{
+
+    border: none !important;
+    outline: none;
+}
+.shadow-for-dash{
+  box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+}
+#navbar{
+  background-color: white;
+  color: #3f1d95 ;
+}
+
+.shadow-for{
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+.actives{
+  background-color: #3f1d95;
+  color: white ;
+  transform: scale(1.13);
+  transition: .4s ease-in-out;
+
+}
+.excel-shadow{
+  box-shadow: rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px;
+}
+.excels-shadow{
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 0px 5px 0px, rgba(0, 0, 0, 0.1) 0px 0px 1px 0px;
+}
+
+.activenav{
+background-color:#3f1d95 !important ;
+color: white !important;
+padding:7px;
+border-radius: 2px;
+transition: all 2s ease-in-out;
+}
+.shadow-for-inputs{
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px, rgb(209, 213, 219) 0px 0px 0px 1px inset;
+}
+
+.bg-theme{
+  background-color: #3f1d95;
+}
+
+.text-theme{
+  color: #3f1d95;
+}
+.custom-toast{
+  background-color: green !important;
+  color:white !important;
+}
+input:focus-visible{
+
+  border: none !important;
+  outline: none;
+}
+button{
+  cursor: pointer;
+}

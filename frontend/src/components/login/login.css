@@ -1,0 +1,44 @@
+.login-back{
+    background-color: oklch(98.5% 0.002 247.839) ;
+}
+.user-input::placeholder{
+    font-size: 16px;
+    color: black;
+    font-family: 700;
+    margin-left: 10px;
+    padding-left: 2px;
+}
+.eye-icons{
+    left:230px;
+     top:4px
+}
+.sub-content{
+    color: #e7e5e4;
+}
+.username-input{
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+}
+.username-input:focus-visible{
+    box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+    border: none !important;
+    outline: none;
+}
+.username-inputs:focus-visible{
+    outline: none;
+
+}
+
+.image-of-background{
+    background-image: url("/assets/Vector_2658.jpg");
+ 
+    background-size: cover;     
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: brightness(0.5);
+}
+.border-boshadow{
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+.thiis-is-:focus-visible{
+    outline: none;
+}
