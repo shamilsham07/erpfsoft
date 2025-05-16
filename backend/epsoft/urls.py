@@ -11,9 +11,6 @@ urlpatterns = [
     path("getdata",views.getdata),
     path("addstaff",views.addstaff),
     path("getthedataforupdate",views.getthedataforupdate),
-
-    
-    
-    
-    
+    path("updtaingthestaff",views.updtaingthestaff),
+    path("updateBank",views.updateBank)
 ]

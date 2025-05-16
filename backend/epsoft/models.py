@@ -53,7 +53,9 @@ class Staff(models.Model):
     aadhar=models.TextField(blank=True,null=True)
     gender=models.TextField(blank=True,null=True)
     DateOfAppointment=models.TextField(blank=True,null=True)
-    inputnumber=models.TextField(blank=True,null=True)    
+    inputnumber=models.TextField(blank=True,null=True)  
+    accountnumber=models.TextField(blank=True,null=True)
+    ifsccode=models.TextField(blank=True,null=True)  
 
     
     

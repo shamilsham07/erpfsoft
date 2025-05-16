@@ -6,6 +6,36 @@ export default function AddExcel() {
   const [showmodal, setshowmodal] = useState(false);
   const [excelishere, setexcelishere] = useState(null);
   const [data, setdata] = useState([]);
+
+
+
+
+const updatebank=async()=>{
+  console.log(data)
+const result=await fetch("http://localhost:8000/updateBank",{
+  method:"POST",
+  headers:{
+    "Content-Type": "application/json",
+  },
+  body:JSON.stringify({data:data})
+})
+const res=await result.json()
+console.log(good)
+if(res.message){
+  console.log("yellam set ann")
+}
+else{
+  console.log("not seems good")
+}
+
+}
+
+
+
+
+
+// neeed to change
+
   const saveexcel = async (e) => {
     console.log(data);
     const result = await fetch("http://localhost:8000/savefile", {
@@ -309,7 +339,7 @@ dark:file:bg-neutral-700 dark:file:text-neutral-400"
         <div className="text-end px-4 py-2 ">
           <button
             className="px-4 py-2 bg-green-900 text-white capitalize text-sm cursor-pointer"
-            onClick={() => saveexcel()}
+            onClick={() =>updatebank()}
             type="button"
           >
             Add Staff

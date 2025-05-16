@@ -9,6 +9,38 @@ import { useParams } from "react-router-dom";
 export default function Addstaff() {
   const params = useParams();
 
+  const updatingstaff = async(e) => {
+    e.preventDefault();
+console.log(name)
+console.log(ipno)
+const formdata=new FormData()
+formdata.append("name",name)
+formdata.append("ipno",ipno)
+formdata.append("UAN",uan)
+formdata.append("aadhar",aadhar)
+formdata.append("gender",gender)
+const result=await fetch("http://localhost:8000/updtaingthestaff",{
+  method:"POST",
+  headers:{
+    "X-CSRFToken": csrftoken,
+
+  },
+  body:formdata
+})
+  };
+
+  const settingvalues = (e) => {
+    console.log(e);
+
+    setgender(e.gender);
+    setname(e.Name);
+    setuan(e.UAN);
+    setaadhar(e.aadhar);
+    setipno(e.inputnumber);
+    setdob(e.dob);
+    setdoa(e.doa);
+  };
+
   const [id, setid] = useState();
 
   const createnull = () => {
@@ -21,20 +53,19 @@ export default function Addstaff() {
     setuan("");
   };
   const getthedataforupdate = async (e) => {
-   
     console.log("USMAN");
-  
+
     const result = await fetch("http://localhost:8000/getthedataforupdate", {
       method: "POST",
-      headers:{
+      headers: {
         "X-CSRFToken": csrftoken,
         "Content-Type": "application/json",
       },
-      body:JSON.stringify({id:params.id})
+      body: JSON.stringify({ id: params.id }),
     });
     const res = await result.json();
     if (res.data) {
-      console.log("good");
+      settingvalues(res.data);
     } else {
       console.log("bad");
     }
@@ -44,7 +75,7 @@ export default function Addstaff() {
   useEffect(() => {
     if (params.id) {
       setid(params.id);
-      getthedataforupdate(params.id)
+      getthedataforupdate(params.id);
     }
   }, [params]);
 
@@ -112,7 +143,7 @@ export default function Addstaff() {
             <form
               action=""
               className="mt-3 px-5"
-              onSubmit={id ? getthedataforupdate : AddStafffunction}
+              onSubmit={id ? updatingstaff : AddStafffunction}
             >
               <div className="flex gap-3 items-center">
                 <div className="flex flex-col w-[50%]">
@@ -186,32 +217,36 @@ export default function Addstaff() {
                     <option value="F">female</option>
                   </select>
                 </div>
-                <div className="w-[33%]">
-                  <label htmlFor="" className="text-sm font-normal">
-                    Date Of Appointment :*
-                  </label>
-                  <input
-                    type="date"
-                    onChange={(e) => setdoa(e.target.value)}
-                    value={doa}
-                    name="date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  />
-                </div>
-                <div className="w-[33%]">
-                  <label htmlFor="" className="text-sm font-normal">
-                    DOB :*
-                  </label>
-                  <input
-                    onChange={(e) => setdob(e.target.value)}
-                    value={dob}
-                    type="date"
-                    name="date"
-                    required
-                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  />
-                </div>
+                {!id && (
+                  <div className="w-[33%]">
+                    <label htmlFor="" className="text-sm font-normal">
+                      Date Of Appointment :*
+                    </label>
+                    <input
+                      type="date"
+                      onChange={(e) => setdoa(e.target.value)}
+                      value={doa}
+                      name="date"
+                      required
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    />
+                  </div>
+                )}
+                {!id && (
+                  <div className="w-[33%]">
+                    <label htmlFor="" className="text-sm font-normal">
+                      DOB :*
+                    </label>
+                    <input
+                      onChange={(e) => setdob(e.target.value)}
+                      value={dob}
+                      type="date"
+                      name="date"
+                      required
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    />
+                  </div>
+                )}
               </div>
               <div className="mt-3 w-full">
                 {id ? (

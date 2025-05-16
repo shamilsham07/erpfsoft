@@ -9,7 +9,9 @@ from .models import Staff
 from .serializer import MyModelSerializer
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.pagination import LimitOffsetPagination
 from django.contrib.auth.hashers import make_password, check_password
+
 # Create your views here.
 
 
@@ -91,7 +93,7 @@ def savefile(request):
 @permission_classes([AllowAny])
 def getdata(request):
     try:
-        staff=Staff.objects.all()
+        staff=Staff.objects.all().order_by("id")
         if staff:
             serializer=MyModelSerializer(staff,many=True)
             print(serializer)
@@ -142,14 +144,72 @@ def getthedataforupdate(request):
         id=data.get("id")
         print(id)
         print("........................................")
-        Staff.objects.filter(id=id)
-        
-        
-        return JsonResponse({"data":"good"})
+        staff=Staff.objects.get(id=id)
+        staffdata={
+            "Name":staff.Name,
+            "dob":staff.dob,
+            "UAN":staff.UAN,
+            "aadhar":staff.aadhar,
+            "gender":staff.gender,
+            "doa":staff.DateOfAppointment,
+            "inputnumber":staff.inputnumber     
+        }
+        return JsonResponse({"data":staffdata},status=200)
     except Exception as e:
         return JsonResponse({"bad":"agly"})         
      
   
+  
+    
+@api_view(["POST"])    
+@authentication_classes([])      
+@permission_classes([AllowAny])
+def updtaingthestaff(request):
+    try:
+        data=request.data
+        name=data.get("name")
+        ipno=data.get("")
+        
+        print("hi iika")
+        
+        return JsonResponse({"datta":"good"},status=200)
+    except Exception as e:
+        print(e)
+        return JsonResponse({"error":"good"})
+    
+@api_view(["POST"])    
+@authentication_classes([])      
+@permission_classes([AllowAny])
+def updateBank(request):
+    try:
+        data=request.data.get("data")     
+        print("jaber")
+        print("hello",data)
+        
+
+        for items in data:
+            name=items.get("NAME")
+            print(name)   
+            accno=items.get("accnumber")
+            print(accno)
+            ifsc=items.get("IFS CODE")
+            if Staff.objects.filter(Name=name).exists():
+                print("")
+                staff = Staff.objects.get(Name=name)
+                print(staff)
+                print(staff.UAN)
+                print(staff)
+                print(staff.accountnumber)
+                print(staff.ifsccode)
+                staff.accountnumber=accno
+                staff.ifsccode=ifsc
+                staff.save()      
+                
+
+        return JsonResponse({"message":"good"})
+    except Exception as e:
+        print(e)
+        return JsonResponse({"bad":"badsss"})
     
     
          
