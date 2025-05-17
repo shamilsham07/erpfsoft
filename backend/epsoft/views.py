@@ -6,10 +6,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserAccount
 from .models import Staff
+import math
 from .serializer import MyModelSerializer
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth.hashers import make_password, check_password
 
 # Create your views here.
@@ -93,12 +94,38 @@ def savefile(request):
 @permission_classes([AllowAny])
 def getdata(request):
     try:
+        search=request.GET.get("search",'')
         staff=Staff.objects.all().order_by("id")
+        staffcount=staff.count()   
+        
+        if search:
+            print("ff",search)
+            staff=staff.filter(Name__icontains=search)or None
+            print("value",staff)
+        else:
+            staff=Staff.objects.all().order_by("id")
+          
+        print(staff)
         if staff:
+            paginator=PageNumberPagination()
+            paginator.page_size=10
+            page=paginator.paginate_queryset(staff,request)
+            if page is not None:
+                serializer=MyModelSerializer(page,many=True)
+                print("jabar")
+                pageSize=paginator.page_size
+                print(serializer.data)
+                totalpages=math.ceil(staffcount/pageSize)
+                
+                page_number = request.GET.get('page', 1)   
+                print(page_number)
+                return paginator.get_paginated_response({"data":serializer.data,"number":page_number,"totalpages":totalpages})
             serializer=MyModelSerializer(staff,many=True)
-            print(serializer)
+            print("hussain")
             print(serializer.data)
             return JsonResponse({"data":serializer.data},safe=False)
+                
+            
         else:
             return JsonResponse({"error":'wrong'})
     except Exception as e:
@@ -114,7 +141,10 @@ def addstaff(request):
         data=request.data
         name=data.get("name",None)
         aadhar=data.get("aadhar",None)
-      
+        ifsc=data.get("ifsccode",None)
+        accno=data.get("accno",None)
+        print(accno)
+        print(ifsc)
         ipno=data.get("ipno",None)
         gender=data.get("gender",None)
         uan=data.get("uan",None)
@@ -152,7 +182,8 @@ def getthedataforupdate(request):
             "aadhar":staff.aadhar,
             "gender":staff.gender,
             "doa":staff.DateOfAppointment,
-            "inputnumber":staff.inputnumber     
+            "inputnumber":staff.inputnumber   
+              
         }
         return JsonResponse({"data":staffdata},status=200)
     except Exception as e:
@@ -212,6 +243,23 @@ def updateBank(request):
         return JsonResponse({"bad":"badsss"})
     
     
+@api_view(["POST"])
+@authentication_classes([])  # Disable authentication
+@permission_classes([AllowAny])
+def deletethestaff(request):
+    try:
+        data=request.data
+        deleteid=data.get("deleteid")
+        print("//",deleteid)
+        if deleteid:
+            Staff.objects.delete(id=deleteid)
+            staff=Staff.objects.all()
+            serializer=MyModelSerializer(staff,many=True)
+            
+            return JsonResponse({"data":serializer.data},safe=False)
+    except Exception as e:
+        print(e)
+        return JsonResponse({"error":"something fishy"})
          
         
     

@@ -19,6 +19,8 @@ formdata.append("ipno",ipno)
 formdata.append("UAN",uan)
 formdata.append("aadhar",aadhar)
 formdata.append("gender",gender)
+formdata.append("accno", accno);
+formdata.append("ifsccode", ifsccode);
 const result=await fetch("http://localhost:8000/updtaingthestaff",{
   method:"POST",
   headers:{
@@ -51,6 +53,8 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
     setipno("");
     setaadhar("");
     setuan("");
+    setaccno("");
+    setifsccode("");
   };
   const getthedataforupdate = async (e) => {
     console.log("USMAN");
@@ -85,6 +89,9 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
   const [gender, setgender] = useState("");
   const [aadhar, setaadhar] = useState();
   const [uan, setuan] = useState();
+  const [accno, setaccno] = useState();
+  const[ifsccode,setifsccode]=useState()
+
   const [doa, setdoa] = useState(null);
   const [dob, setdob] = useState(null);
 
@@ -104,6 +111,10 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
     formdata.append("uan", uan);
     formdata.append("doa", doa);
     formdata.append("dob", dob);
+    formdata.append("accno", accno);
+    formdata.append("ifsccode", ifsccode);
+
+
 
     const result = await fetch("http://localhost:8000/addstaff", {
       method: "POST",
@@ -172,6 +183,36 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                     placeholder="Enter Staff Phone"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 items-center">
+                <div className="flex flex-col w-[50%]">
+                  <label htmlFor="" className="text-sm font-normal">
+                    Acc Number : *
+                  </label>
+                  <input
+                    type=""
+                    placeholder="Enter Account number"
+                    value={name}
+                    onChange={(e) => setaccno(e.target.value)}
+                    name="acoountnumber"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  />
+                </div>
+                <div className=" w-[50%]">
+                  <label htmlFor="" className="text-sm font-normal">
+                    IFSC code : *
+                  </label>
+                  <input
+                    type="number"
+                    onChange={(e) => setifsccode(e.target.value)}
+                    value={aadhar}
+                    name="ifsccode"
+                    required
+                    className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Enter IFSC code"
                   />
                 </div>
               </div>
