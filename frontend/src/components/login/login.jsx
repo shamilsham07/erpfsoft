@@ -5,20 +5,28 @@ import image from "../../assets/top-skyscraper-surrounded-with-clouds.jpg";
 import image1 from "../../assets/87_home_leaf.jpg";
 import { useNavigate } from "react-router-dom";
 import back from "../../assets/Vector_2658.jpg";
+import Cookies from "universal-cookie";
+import { authenticate } from "../redux/reducer";
+import { useSelector, useDispatch } from "react-redux";
 
 export default function Login() {
+  const cookies = new Cookies();
+  const authenticates = useSelector((state) => state.auth.isAuthenticated);
+  const dispatch = useDispatch("");
   const [whichtype, setwhichtype] = useState(true);
+
   const [icon, seticon] = useState(true);
   const navigate = useNavigate();
+  console.log("jabar ikka", cookies.get("refresh"));
+  console.log("jabar mwon", cookies.get("access"));
 
-  const makenull=()=>{
-    console.log("hi")
-  setinputvalues({
-    password:"",
-    username:""
-  })
-
-  }
+  const makenull = () => {
+    console.log("hi");
+    setinputvalues({
+      password: "",
+      username: "",
+    });
+  };
 
   const login = async (e) => {
     console.log("firstssssssss");
@@ -39,16 +47,19 @@ export default function Login() {
         body,
       });
       const res = await result.json();
-     
 
       if (res.refresh) {
+        console.log(res);
+        cookies.set("refresh", res.refresh);
+        cookies.set("access", res.access);
         console.log("everything-seeems-good");
-        makenull()
-      
+        dispatch(authenticate(true));
+        makenull();
+
         navigate("/");
       } else {
-        makenull()
-        
+        makenull();
+
         console.log("not-good");
       }
     } catch (error) {
@@ -66,7 +77,9 @@ export default function Login() {
       <div className="w-[90%] h-[80vh] rounded flex">
         <div className="w-[50%] bg-theme h-full rounded-tl-lg rounded-bl-lg flex justify-center items-center flex-col ">
           <i className="bi bi-journal text-white text-[237px]"></i>
-          <h1 className=" text-white text-[65px] font-bold uppercase">ERPSOFT</h1>
+          <h1 className=" text-white text-[65px] font-bold uppercase">
+            ERPSOFT
+          </h1>
         </div>
         <div className="w-[50%] flex justify-center items-center bg-white rounded-tr-lg rounded-br-lg flex-col">
           <div>

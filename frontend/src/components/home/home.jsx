@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "./home.css";
+import Cookies from "universal-cookie";
 
 import { useState } from "react";
 import Staffs from "./staffs";
@@ -10,6 +11,7 @@ import cards from "../../assets/credit-card.png";
 import revenueicon from "../../assets/revenue (1).png";
 import Nav from "./nav";
 export default function Home() {
+   const cookies = new Cookies();
   const [uservalue, setuservalue] = useState(0);
   const [creditcount, setcreditcount] = useState(0);
 

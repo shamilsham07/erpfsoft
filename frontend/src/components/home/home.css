@@ -74,3 +74,11 @@ input:focus-visible{
 button{
   cursor: pointer;
 }
+li{
+  cursor: pointer;
+}
+.dating input{
+  padding: 4px;
+    background: #f7f7f7;
+    border: 1px solid #e6e6e6;
+}

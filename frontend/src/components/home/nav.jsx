@@ -1,17 +1,28 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./home.css";
-
+import Cookies from "universal-cookie";
 import logo from "../../assets/new-logo.png";
-
+import { authenticate } from "../redux/reducer";
+import { useDispatch } from "react-redux";
 export default function Nav() {
+  const dispatch=useDispatch()
+  const cookies=new Cookies()
+  
+  function logout() {
+    console.log("jagu");
+    cookies.remove("access")
+    cookies.remove("refresh")
+    dispatch(authenticate(false))
+
+  }
 
   const navigation = useNavigate();
   const location = useLocation();
-  const goBack=()=>{
-    console.log("hi")
-    navigation(-1)
-  }
+  const goBack = () => {
+    console.log("hi");
+    navigation(-1);
+  };
 
   const getActiveNav = () => {
     const path = location.pathname;
@@ -23,6 +34,9 @@ export default function Nav() {
     }
     if (path === "/Addstaff") {
       return "staff";
+    }
+    if (path === "/addwage") {
+      return "wage";
     }
     return path.replace("/", "");
   };
@@ -50,7 +64,7 @@ export default function Nav() {
             <div className="flex gap-1 ml-2 ">
               <i
                 class="bi bi-arrow-left-circle text-theme text-2xl"
-                onClick={()=>goBack()}
+                onClick={() => goBack()}
               ></i>
               <i class="bi bi-arrow-right-circle text-theme text-2xl"></i>
             </div>
@@ -70,14 +84,17 @@ export default function Nav() {
                 Staff Management
               </li>
               <li
-                className={activeNav === "banking" ? "activenav" : ""}
-                onClick={() => handleClick("banking")}
+                className={activeNav === "wage" ? "activenav" : ""}
+                onClick={() => handleClick("wage")}
               >
-                Banking
+                Wage
               </li>
               <li
                 className={activeNav === "logout" ? "activenav" : ""}
-                onClick={() => handleClick("logout")}
+                onClick={() => {
+                  // handleClick("logout");
+                  logout();
+                }}
               >
                 Logout
               </li>
