@@ -1,50 +1,37 @@
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import "./home.css";
 import Cookies from "universal-cookie";
+import { useState } from "react";
 import logo from "../../assets/new-logo.png";
 import { authenticate } from "../redux/reducer";
 import { useDispatch } from "react-redux";
 export default function Nav() {
-  const dispatch=useDispatch()
-  const cookies=new Cookies()
-  
-  function logout() {
-    console.log("jagu");
-    cookies.remove("access")
-    cookies.remove("refresh")
-    dispatch(authenticate(false))
+  const navigation = useNavigate();
+  const dispatch = useDispatch();
+  const [activeclass, setactive] = useState('null');
 
+  const cookies = new Cookies();
+
+  const Handler=(e,item)=> {
+    try {
+     setactive(item)
+      navigation(`/${item}`) 
+    } catch (error) {
+      console.log("error", error);
+    }
   }
 
-  const navigation = useNavigate();
-  const location = useLocation();
+  function logout() {
+    console.log("jagu");
+    cookies.remove("access");
+    cookies.remove("refresh");
+    dispatch(authenticate(false));
+  }
+
   const goBack = () => {
     console.log("hi");
     navigation(-1);
-  };
-
-  const getActiveNav = () => {
-    const path = location.pathname;
-    if (path === "/") {
-      return "dashboard";
-    }
-    if (path === "/AddExcel") {
-      return "staff";
-    }
-    if (path === "/Addstaff") {
-      return "staff";
-    }
-    if (path === "/addwage") {
-      return "wage";
-    }
-    return path.replace("/", "");
-  };
-
-  const activeNav = getActiveNav();
-
-  const handleClick = (e) => {
-    navigation(e === "dashboard" ? "/" : `/${e}`);
   };
 
   return (
@@ -56,7 +43,7 @@ export default function Nav() {
               <i className="bi bi-journal text-2xl"></i>
             </div>
             <div>
-              <p className="mb-0 text-theme text-xl font-bold mb-0 leading-5">
+              <p className="mb-0 text-theme text-xl font-bold  leading-5">
                 ERPSOFT
               </p>
               <p className="text-sm mb-0">Staff Payroll</p>
@@ -72,30 +59,37 @@ export default function Nav() {
           <div>
             <ul className="flex text-black gap-5 font-normal text-sm items-center">
               <li
-                className={activeNav === "dashboard" ? "activenav" : ""}
-                onClick={() => handleClick("dashboard")}
+                onClick={(e) => {
+                  Handler(e, "");
+                }}
+                className={activeclass == "" ? "active" : ""}
               >
                 Dashboard
               </li>
               <li
-                className={activeNav === "staff" ? "activenav" : ""}
-                onClick={() => handleClick("staff")}
+                onClick={(e) => {
+                  Handler(e, "staff");
+                }}
+                className={activeclass == "staff" ? "active" : ""}
               >
-                Staff Management
+                staff managment
               </li>
               <li
-                className={activeNav === "wage" ? "activenav" : ""}
-                onClick={() => handleClick("wage")}
+                onClick={(e) => {
+                  Handler(e, "Wage");
+                }}
+                className={activeclass == "Wage" ? "active" : ""}
               >
-                Wage
+                wage
               </li>
               <li
-                className={activeNav === "logout" ? "activenav" : ""}
                 onClick={() => {
-                  // handleClick("logout");
-                  logout();
+                  {
+                    logout();
+                  }
                 }}
               >
+                {" "}
                 Logout
               </li>
             </ul>

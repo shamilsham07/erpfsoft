@@ -262,4 +262,16 @@ def deletethestaff(request):
         return JsonResponse({"error":"something fishy"})
          
         
-    
+
+@api_view(["GET"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])
+def gettotaldetails(request):
+    try:
+        print("sulu")
+        details=Staff.objects.all().order_by("id")  
+        serializer=MyModelSerializer(details,many=True)
+        print("ikka")
+        return JsonResponse({"data":serializer.data},safe=False)
+    except Exception as e:
+        return JsonResponse({"error":"something fishy"})       

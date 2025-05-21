@@ -13,5 +13,7 @@ urlpatterns = [
     path("getthedataforupdate",views.getthedataforupdate),
     path("updtaingthestaff",views.updtaingthestaff),
     path("updateBank",views.updateBank),
-    path("deletethestaff",views.deletethestaff)
+    path("deletethestaff",views.deletethestaff),    
+    path("gettotaldetails",views.gettotaldetails)
+
 ]

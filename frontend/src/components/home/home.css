@@ -82,3 +82,13 @@ li{
     background: #f7f7f7;
     border: 1px solid #e6e6e6;
 }
+.active{
+background-color:#3f1d95 !important ;
+color: white !important;
+padding:7px;
+border-radius: 2px;
+transition: all .5s ease-in-out;
+
+
+
+}
