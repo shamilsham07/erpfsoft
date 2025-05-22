@@ -14,6 +14,9 @@ urlpatterns = [
     path("updtaingthestaff",views.updtaingthestaff),
     path("updateBank",views.updateBank),
     path("deletethestaff",views.deletethestaff),    
-    path("gettotaldetails",views.gettotaldetails)
+    path("gettotaldetails",views.gettotaldetails),
+    path("SaveTheWage",views.SaveTheWage),
+    
+    
 
 ]

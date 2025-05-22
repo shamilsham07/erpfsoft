@@ -59,4 +59,29 @@ class Staff(models.Model):
 
     
     
+class staffwage(models.Model):
+    staffid=models.ForeignKey(Staff,on_delete=models.CASCADE)
+    staffattendence=models.IntegerField(default=0)
+    wage=models.FloatField(blank=True,null=True)
+    date=models.TextField(blank=True,null=True)
+
+class epfcalculation(models.Model):
+    staffid=models.ForeignKey(Staff,on_delete=models.CASCADE)
+    wage=models.ForeignKey(staffwage,on_delete=models.CASCADE)
+    epf=models.FloatField(blank=True,null=True)
+    eps=models.FloatField(blank=True,null=True)
+    edli=models.FloatField(blank=True,null=True)
+    gross=models.FloatField(blank=True,null=True)
+    ee=models.FloatField(blank=True,null=True)
+    eps_employer=models.FloatField(blank=True,null=True)
+    er=models.FloatField(blank=True,null=True)
+    ncp_days=models.FloatField(blank=True,null=True)
+    refund=models.FloatField(blank=True,null=True)
+    
+    
+    
+    
+    
+    
+    
   

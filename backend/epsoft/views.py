@@ -274,4 +274,19 @@ def gettotaldetails(request):
         print("ikka")
         return JsonResponse({"data":serializer.data},safe=False)
     except Exception as e:
-        return JsonResponse({"error":"something fishy"})       
+        return JsonResponse({"error":"something fishy"})     
+    
+
+@api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])  
+def SaveTheWage(request):
+    try:
+        print("suluikka")
+        data=request.data
+        date=data.get("date")
+        print("data",data)
+        print(date)
+        return JsonResponse({"message":"good"})
+    except Exception as e:
+        return JsonResponse({"error":"wrong"})

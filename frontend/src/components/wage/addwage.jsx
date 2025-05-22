@@ -1,50 +1,79 @@
 import React, { useEffect, useState } from "react";
 import Nav from "../home/nav";
 import "../home/home.css";
+import csrftoken from "../../../csrf";
 import { Calendar } from "primereact/calendar";
 
 export default function Addwage() {
   const [isChecked, setIsChecked] = useState({});
+  const[updategross,setupdategrosss]=useState()
+  const [date, setdate] = useState(null);
   const [userdetails, setuserdetails] = useState({});
   const [epf, setepf] = useState({});
   const [esi, setesi] = useState(null);
-  const [wage, setwage] = useState({});
+  const [gross, setgross] = useState({});
+  const [updatewage, setupdatewage] = useState();
+  const [activeModal, setactivemodal] = useState(false);
   const [buttonActive, setbuttonactive] = useState(false);
 
-  const changewage = () => {
-    console.log("jjjhgefuwi", isChecked);
-  const updated=  userdetails.map((staff) => {
+  const updatingvalue = (e) => {
+    console.log("hieeeeee");
+    console.log("jjdhfg", isChecked);
+    const updating = userdetails.map((staff) => {
       if (isChecked[staff.id]) {
         return {
           ...staff,
-          wage: 2000,
+          gross: updategross,
+          epf:9
+        };
+      
+      }
+      return staff;
+    });
+      setIsChecked({})
+    setuserdetails(updating)
+    setactivemodal(false)
+
+  };
+
+  function changewage() {
+    setactivemodal(true);
+  }
+
+  function handleCheckboxChange(e, id) {
+    console.log(id);
+    console.log(e.target.checked);
+    console.log(isChecked);
+    if (e.target.checked) {
+      setIsChecked((prev) => ({
+        ...prev,
+        [id]: id,
+      }));
+
+    } else {
+      console.log("ll");
+      setIsChecked((prev) => {
+        const checkings = { ...prev };
+        delete checkings[id];
+        return checkings;
+      });
+    }
+  }
+
+  function setupdategross(e, id) {
+    const updatedetails = userdetails.map((staff) => {
+      if (staff.id === id) {
+        return {
+          ...staff,
+          gross: e.target.value,
+          epf: 7000 * e.target.value,
         };
       }
-      return staff
+      return staff;
     });
-    console.log(updated)
-      setuserdetails(updated);
-  };
+    setuserdetails(updatedetails);
+  }
 
-  const handleCheckboxChange = (e, id) => {
-    setIsChecked((prev) => ({
-      ...prev,
-      [id]: e.target.checked,
-    }));
-  };
-
-  const save = async () => {
-    console.log("harsdhal", userdetails);
-  };
-
-  const storeattendence = (e, id) => {
-    console.log(e.target.value);
-    setuserdetails((prev) =>
-      prev.map((staff) =>
-        staff.id === id ? { ...staff, attendence: e.target.value } : staff
-      )
-    );
-  };
   async function getdetails() {
     console.log(userdetails);
     try {
@@ -56,12 +85,18 @@ export default function Addwage() {
         console.log("j", res.data);
         const ourdata = res.data.map((user) => ({
           ...user,
-          wage: "",
-          attendence: "",
+          gross: "",
+          edli: "",
           epf: "",
+          esi: "",
+          ee: "",
+          eps_employer: "",
+          er: "",
+          ncp_days: "",
+          refund: "",
         }));
         setuserdetails(ourdata);
-        console.log(ourdata);
+        console.log("jabarikka", ourdata);
       } else {
         console.log("he");
         setuserdetails(null);
@@ -71,39 +106,25 @@ export default function Addwage() {
     }
   }
 
-  function calculation(e, id) {
-    setuserdetails((prev) =>
-      prev.map((staff) =>
-        staff.id === id
-          ? {
-              ...staff,
-              wage: e.target.value,
-              epf: e.target.value * parseInt(staff.attendence),
-            }
-          : staff
-      )
-    );
-  }
-
   useEffect(() => {
-    const checkeditems = Object.values(isChecked).some(
-      (value) => value === true
-    );
-    if (checkeditems) {
-      setbuttonactive(true);
-    } else {
+    if (Object.keys(isChecked).length === 0) {
       setbuttonactive(false);
+    } else {
+      setbuttonactive(true);
     }
   }, [isChecked]);
 
   useEffect(() => {
+    console.log(new Date());
+    setdate(new Date());
+
     getdetails();
   }, []);
 
   return (
     <section className="bg-[#f5f5f5] w-full h-screen">
       <Nav />
-      <div className="container px-10">
+      <div className="container px-10 relative">
         <section className="bg-white box-shadows-nav p-6 rounded-md px-4 z-0">
           <div className="flex justify-between">
             <div className="card flex justify-content-center items-center gap-2">
@@ -115,10 +136,11 @@ export default function Addwage() {
                 <span>:</span>
               </label>
               <Calendar
-                // value={date}
+                value={date}
                 className="dating"
                 view="month"
                 dateFormat="mm/yy"
+                onChange={(e) => setdate(e.target.value)}
               />
             </div>
             <div>
@@ -133,122 +155,123 @@ export default function Addwage() {
             </div>
           </div>
 
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg mt-2">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr className="text-white">
-                  <th
-                    scope="col"
-                    className="px-6 py-3 bg-theme border-2 border-white"
-                  >
-                    select
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 bg-theme border-2 border-white"
-                  >
-                    #
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 bg-theme border-2 border-white"
-                  >
-                    <div class="flex items-center">Name</div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 border-2 border-white bg-theme"
-                  >
-                    <div class="flex items-center">attendence</div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 border-2 border-white bg-theme"
-                  >
-                    <div class="flex items-center">wage</div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 border-2 border-white bg-theme"
-                  >
-                    <div class="flex items-center">Date</div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 border-2 border-white bg-theme"
-                  >
-                    <div class="flex items-center">epf</div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 border-2 border-white bg-theme"
-                  >
-                    <div class="flex items-center">esi</div>
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-3 border-2 border-white bg-theme"
-                  >
-                    <div class="flex items-center">total net</div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {userdetails.length > 0 &&
-                  userdetails.map((staff, index) => (
-                    <tr
-                      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
-                      key={index}
-                    >
-                      <td className="px-6 py-4 text-center">
-                        <input
-                          id="default-checkbox"
-                          checked={!!isChecked[staff.id]}
-                          onChange={(e) => handleCheckboxChange(e, staff.id)}
-                          type="checkbox"
-                          value=""
-                          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                        />
-                      </td>
-                      <th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        1
+          <div class="-m-1.5 overflow-x-auto mt-3">
+            <div class="p-1.5 min-w-full inline-block align-middle">
+              <div class="overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700  addpage-div">
+                  <thead className="bg-theme text-white text-sm font-normal capitalize ">
+                    <tr className="">
+                      <th
+                        rowSpan="3"
+                        className="border-white border-1 text-normal font-normal"
+                      >
+                        select
                       </th>
-                      <td class="px-6 py-4 text-black">{staff.Name}</td>
-                      <td class="px-6 py-4 text-start">
-                        <input
-                          type="number"
-                          className="bg-[#f7f7f7] px-2 py-2 rounded-sm border border-[#e6e6e6]"
-                          value={staff.attendence || ""}
-                          onChange={(e) => {
-                            storeattendence(e, staff.id);
-                          }}
-                        />
-                      </td>
-                      <td class="px-6 py-4 text-start">
-                        <input
-                          type="number"
-                          value={staff.wage}
-                          className="bg-[#f7f7f7] px-2 py-2 rounded-sm border border-[#e6e6e6]"
-                          onChange={(e) => {
-                            calculation(e, staff.id);
-                          }}
-                        />
-                      </td>
-                      <td class="px-6 py-4">
-                        <Calendar
-                          // value={date}
-                          className="dating"
-                          view="month"
-                          dateFormat="mm/yy"
-                        />
-                      </td>
-                      <td class="px-6 py-4" value={epf || ""}>
-                        {staff.wage*staff.attendence}
-                      </td>
+                      <th
+                        rowSpan="3"
+                        className="border-white border-1 text-normal font-normal "
+                      >
+                        id
+                      </th>
+                      <th
+                        rowSpan="3"
+                        className="border-white border-1 font-normal"
+                      >
+                        Uan
+                      </th>
+                      <th
+                        rowSpan="3"
+                        className="border-white border-1 font-normal"
+                      >
+                        Name
+                      </th>
+                      <th
+                        colSpan="4"
+                        className="wage border-white border-1 font-normal"
+                      >
+                        wages
+                      </th>
+                      <th
+                        colSpan="4"
+                        className="border-white border-1 font-normal"
+                      >
+                        contributed
+                      </th>
+                      <th
+                        rowSpan="3"
+                        className="border-white border-1 font-normal"
+                      >
+                        refund
+                      </th>
                     </tr>
-                  ))}
-              </tbody>
-            </table>
+                    <tr>
+                      <th className="border-white border-1 font-normal">
+                        gross
+                      </th>
+                      <th className=" font-normal border-white border-1">
+                        epf
+                      </th>
+                      <th className="font-normal border-white border-1">eps</th>
+
+                      <th className=" font-normal border-white border-1">
+                        edli
+                      </th>
+                      <th className="border-white border-1 font-normal">EE</th>
+                      <th className="border-white border-1 font-normal">
+                        {" "}
+                        eps_employer
+                      </th>
+                      <th className="border-white border-1 font-normal">ER</th>
+                      <th className="border-white border-1 font-normal">
+                        NCPDAYS
+                      </th>
+                    </tr>
+                    <tr></tr>
+                  </thead>
+                  {userdetails.length > 0 &&
+                    userdetails.map((staff, index) => (
+                      <tr key={index} className="text-sm">
+                        <td className="px-6 py-4 text-center">
+                          <input
+                            id="default-checkbox"
+                            checked={!!isChecked[staff.id]}
+                            onChange={(e) => handleCheckboxChange(e, staff.id)}
+                            type="checkbox"
+                            value=""
+                            class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                          />
+                        </td>
+
+                        <td className="text-center px-3 py-5 bg-gray-50 dark:bg-gray-800 ">
+                          {index + 1}
+                        </td>
+                        <td className="text-center ">{staff.UAN}</td>
+                        <td className="text-center bg-gray-50 dark:bg-gray-800">
+                          {staff.Name}
+                        </td>
+                        <td className="text-center ">
+                          <input
+                            type="number"
+                            className="w-[100px] bg-[#f5f5f5] px-2 py-2 rounded border-[#e6e6e6] outline-none "
+                            value={staff.gross}
+                            onChange={(e) => setupdategross(e, staff.id)}
+                          />
+                        </td>
+                        <td className="text-center bg-gray-50 dark:bg-gray-800 ">
+                          {staff.epf}
+                        </td>
+                        <td className="text-center  "></td>
+                        <td className="text-center bg-gray-50 dark:bg-gray-800 "></td>
+                        <td className="text-center"></td>
+                        <td className="text-center bg-gray-50 dark:bg-gray-800"></td>
+                        <td className="text-center"></td>
+                        <td className="text-center bg-gray-50 dark:bg-gray-800"></td>
+                        <td className="text-center"></td>
+                      </tr>
+                    ))}
+                </table>
+              </div>
+            </div>
           </div>
           <div className="mt-3 text-end">
             <button
@@ -259,6 +282,76 @@ export default function Addwage() {
             </button>
           </div>
         </section>
+        {activeModal && (
+          <div
+            id="authentication-modal"
+            tabindex=""
+            class=" overflow-y-auto overflow-x-hidden absolute z-1000 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"
+          >
+            <div class="absolute left-[500px] top-[200px] p-4 w-full max-w-md max-h-full">
+              <div class="relative bg-white rounded-lg shadow-sm dark:bg-gray-700">
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600 border-gray-200">
+                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white capitalize">
+                    add wage
+                  </h3>
+                  <button
+                    type="button"
+                    class="end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                    data-modal-hide="authentication-modal"
+                    onClick={() => setactivemodal(false)}
+                  >
+                    <svg
+                      class="w-3 h-3"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 14 14"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                      />
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                  </button>
+                </div>
+
+                <div class="p-4 md:p-5">
+                  <form class="space-y-4" action="#">
+                    <div>
+                      <label
+                        for="email"
+                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Wage
+                      </label>
+                      <input
+                        type="number"
+                        name="wage"
+                        onChange={(e) => setupdategrosss(e.target.value)}
+                        id="number"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                        placeholder="Enter the wage"
+                        required
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 uppercase"
+                      onClick={() => updatingvalue()}
+                    >
+                      confirm
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
