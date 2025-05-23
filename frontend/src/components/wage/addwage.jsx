@@ -6,8 +6,9 @@ import { Calendar } from "primereact/calendar";
 
 export default function Addwage() {
   const [isChecked, setIsChecked] = useState({});
-  const[updategross,setupdategrosss]=useState()
+  const [updategross, setupdategrosss] = useState();
   const [date, setdate] = useState(null);
+  const [epsvlaue, setepsvalue] = useState();
   const [userdetails, setuserdetails] = useState({});
   const [epf, setepf] = useState({});
   const [esi, setesi] = useState(null);
@@ -15,6 +16,32 @@ export default function Addwage() {
   const [updatewage, setupdatewage] = useState();
   const [activeModal, setactivemodal] = useState(false);
   const [buttonActive, setbuttonactive] = useState(false);
+
+  const save = async () => {
+    console.log(userdetails);
+    console.log(date);
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+    console.log(year);
+
+    let finaldate = `${month}/${year}`;
+    console.log(finaldate);
+
+    const result = await fetch("http://localhost:8000/savingorupdatewage", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+      body: JSON.stringify({ details: userdetails, date: finaldate }),
+    });
+    const res = await result.json();
+    if (res.message) {
+      console.log("hi");
+    } else {
+      console.log("hello");
+    }
+  };
 
   const updatingvalue = (e) => {
     console.log("hieeeeee");
@@ -24,16 +51,25 @@ export default function Addwage() {
         return {
           ...staff,
           gross: updategross,
-          epf:9
+          epf: updategross,
+          eps: updategross > 15000 ? 15000 : updategross,
+          edli: updategross > 15000 ? 15000 : updategross,
+          ee: Math.round((updategross * 12) / 100),
+          eps_employer:
+            updategross > 15000
+              ? Math.round((15000 * 8.33) / 100)
+              : Math.round((updategross * 8.33) / 100),
+          er:
+            updategross > 15000
+              ? Math.round((15000 * 3.67) / 100)
+              : Math.round((updategross * 3.67) / 100),
         };
-      
       }
       return staff;
     });
-      setIsChecked({})
-    setuserdetails(updating)
-    setactivemodal(false)
-
+    setIsChecked({});
+    setuserdetails(updating);
+    setactivemodal(false);
   };
 
   function changewage() {
@@ -49,7 +85,6 @@ export default function Addwage() {
         ...prev,
         [id]: id,
       }));
-
     } else {
       console.log("ll");
       setIsChecked((prev) => {
@@ -63,10 +98,22 @@ export default function Addwage() {
   function setupdategross(e, id) {
     const updatedetails = userdetails.map((staff) => {
       if (staff.id === id) {
+        console.log("eps", staff.eps);
         return {
           ...staff,
           gross: e.target.value,
-          epf: 7000 * e.target.value,
+          epf: e.target.value,
+          eps: e.target.value > 15000 ? 15000 : e.target.value,
+          edli: e.target.value > 15000 ? 15000 : e.target.value,
+          ee: Math.round((e.target.value * 12) / 100),
+          eps_employer:
+            e.target.value > 15000
+              ? Math.round((15000 * 8.33) / 100)
+              : Math.round((e.target.value * 8.33) / 100),
+          er:
+            e.target.value > 15000
+              ? Math.round((15000 * 3.67) / 100)
+              : Math.round((e.target.value * 3.67) / 100),
         };
       }
       return staff;
@@ -75,10 +122,20 @@ export default function Addwage() {
   }
 
   async function getdetails() {
-    console.log(userdetails);
+    console.log("kkkkkkkk", userdetails);
+    let date = new Date();
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let finaldate = `${month}/${year}`;
+    console.log("k", finaldate);
     try {
       const result = await fetch("http://localhost:8000/gettotaldetails", {
-        method: "GET",
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrftoken,
+        },
+        body:JSON.stringify({"date":finaldate})
       });
       const res = await result.json();
       if (res.data) {
@@ -87,6 +144,7 @@ export default function Addwage() {
           ...user,
           gross: "",
           edli: "",
+
           epf: "",
           esi: "",
           ee: "",
@@ -117,7 +175,6 @@ export default function Addwage() {
   useEffect(() => {
     console.log(new Date());
     setdate(new Date());
-
     getdetails();
   }, []);
 
@@ -155,7 +212,7 @@ export default function Addwage() {
             </div>
           </div>
 
-          <div class="-m-1.5 overflow-x-auto mt-3">
+          <div class="-m-1.5 overflow-x-auto mt-3 h-[50vh] overflow-y-auto">
             <div class="p-1.5 min-w-full inline-block align-middle">
               <div class="overflow-hidden">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700  addpage-div">
@@ -260,11 +317,15 @@ export default function Addwage() {
                         <td className="text-center bg-gray-50 dark:bg-gray-800 ">
                           {staff.epf}
                         </td>
-                        <td className="text-center  "></td>
-                        <td className="text-center bg-gray-50 dark:bg-gray-800 "></td>
-                        <td className="text-center"></td>
-                        <td className="text-center bg-gray-50 dark:bg-gray-800"></td>
-                        <td className="text-center"></td>
+                        <td className="text-center  ">{staff.eps}</td>
+                        <td className="text-center bg-gray-50 dark:bg-gray-800 ">
+                          {staff.edli}
+                        </td>
+                        <td className="text-center">{staff.ee}</td>
+                        <td className="text-center bg-gray-50 dark:bg-gray-800">
+                          {staff.eps_employer}
+                        </td>
+                        <td className="text-center">{staff.er}</td>
                         <td className="text-center bg-gray-50 dark:bg-gray-800"></td>
                         <td className="text-center"></td>
                       </tr>

@@ -6,6 +6,8 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserAccount
 from .models import Staff
+from.models import staffwage
+from.models import epfcalculation
 import math
 from .serializer import MyModelSerializer
 from datetime import datetime, timedelta
@@ -263,16 +265,33 @@ def deletethestaff(request):
          
         
 
-@api_view(["GET"])
+@api_view(["POST"])
 @authentication_classes([]) 
 @permission_classes([AllowAny])
 def gettotaldetails(request):
     try:
-        print("sulu")
-        details=Staff.objects.all().order_by("id")  
-        serializer=MyModelSerializer(details,many=True)
+        data=request.data
+        date=data.get("date")
+        print(date)
+        wageData = []
+        if date:
+            staffs=staffwage.objects.filter(date=date)
+            
+            for staff in staffs:
+                staff_wage = epfcalculation.objects.get(wage=staff)
+                wageData.append({
+                    'id':staff.id,
+                    'epf':staff_wage.epf,
+                    "er":staff_wage.er,
+                    "eps":staff_wage.eps,
+                    "edli":staff_wage.edli,
+                    "ee":staff_wage.ee,
+                    'name':staffs.name,
+                    
+                    
+                })
         print("ikka")
-        return JsonResponse({"data":serializer.data},safe=False)
+        return JsonResponse({"data":wageData})
     except Exception as e:
         return JsonResponse({"error":"something fishy"})     
     
@@ -290,3 +309,89 @@ def SaveTheWage(request):
         return JsonResponse({"message":"good"})
     except Exception as e:
         return JsonResponse({"error":"wrong"})
+
+@api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])  
+def savingorupdatewage(request):
+    try:
+        print("hhhr8wi")
+        data=request.data
+        datas=data.get("details")
+        print(datas)
+        getdate=data.get("date")
+        print("    ",getdate)
+        date=staffwage.objects.filter(date=getdate).exists()
+        if date:
+           for items in datas:
+               id=items.get("id")
+               wage=items.get("gross")or 0
+               epf=items.get("epf")or 0
+               eps=items.get("eps")or 0
+               edli=items.get("edli")or 0
+               ee=items.get("ee")or 0
+               eps_employer=items.get("eps_employer")or 0
+               er=items.get("er")or 0
+               
+               if wage:
+                   wage=int(wage)
+               itemisset=staffwage.objects.filter(staffid_id=id,date=getdate).exists()
+               
+               if itemisset:
+                   gettheitem=staffwage.objects.get(staffid_id=id,date=getdate)
+                   if wage:
+                       gettheitem.wage=wage
+                       gettheitem.save()
+                   getwageid=gettheitem.id
+                   updatingepf=epfcalculation.objects.get(wage_id=getwageid)
+                   print(updatingepf)
+                   print(epf)
+                   if epf:
+                       updatingepf.epf=epf
+                   if eps:
+                       updatingepf.eps=eps
+                   if edli:
+                       updatingepf.edli=edli
+                   if ee:
+                       updatingepf.ee=ee
+                   if eps_employer:
+                       updatingepf.eps_employer=eps_employer
+                   if er:
+                       updatingepf.er=er
+                   updatingepf.save()
+                    
+           return JsonResponse({"good":"baddddddddddddddddddddd"})
+               
+               
+        else:
+            for items in datas:
+                id=items.get("id") or 0
+                epf=items.get("epf")or 0
+                eps=items.get("eps")or 0
+                edli=items.get("edli")or 0
+                ee=items.get("ee")or 0
+                eps_employer=items.get("eps_employer")or 0
+                er=items.get("er")or 0
+
+
+                
+                
+                name=items.get("Name",None) 
+                wage = items.get("gross",0)
+                if wage:
+                    wage = int(wage) 
+                else:
+                    wage = 0
+                if id:
+                    staffwage.objects.create(staffid_id=id,wage=wage,date=getdate)
+                    wages=staffwage.objects.get(staffid_id=id,date=getdate)
+                    theid=wages.id
+                    print("ererer",theid)
+                    epfcalculation.objects.create(staffid_id=id,wage_id=theid,date=getdate,epf=epf,eps=eps,edli=edli,ee=ee,eps_employer=eps_employer,er=er)
+                    
+                    
+        return  JsonResponse({"data":"mesage recieved succesfuuly"})
+    except Exception as e:
+        print(e)
+        return JsonResponse({"eroor":"errrororororo"})
+    

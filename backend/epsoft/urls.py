@@ -16,6 +16,7 @@ urlpatterns = [
     path("deletethestaff",views.deletethestaff),    
     path("gettotaldetails",views.gettotaldetails),
     path("SaveTheWage",views.SaveTheWage),
+    path("savingorupdatewage",views.savingorupdatewage),
     
     
 
