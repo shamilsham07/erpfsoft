@@ -1,34 +1,56 @@
 import React, { useEffect, useState } from "react";
 import Nav from "./nav";
 import csrftoken from "../../../csrf";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast, Bounce, Flip } from "react-toastify";
 import "./home.css";
 import "react-toastify/dist/ReactToastify.css";
 import { useParams } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 
 export default function Addstaff() {
+  const navigate = useNavigate();
   const params = useParams();
 
-  const updatingstaff = async(e) => {
+  const updatingstaff = async (e) => {
     e.preventDefault();
-console.log(name)
-console.log(ipno)
-const formdata=new FormData()
-formdata.append("name",name)
-formdata.append("ipno",ipno)
-formdata.append("UAN",uan)
-formdata.append("aadhar",aadhar)
-formdata.append("gender",gender)
-formdata.append("accno", accno);
-formdata.append("ifsccode", ifsccode);
-const result=await fetch("http://localhost:8000/updtaingthestaff",{
-  method:"POST",
-  headers:{
-    "X-CSRFToken": csrftoken,
+    console.log(name);
+    console.log(ipno);
+    const formdata = new FormData();
+    formdata.append("id", id);
+    formdata.append("name", name);
+    formdata.append("ipno", ipno);
+    formdata.append("UAN", uan);
+    formdata.append("aadhar", aadhar);
+    formdata.append("gender", gender);
+    formdata.append("accno", accno);
+    formdata.append("ifsccode", ifsccode);
+    const result = await fetch("http://localhost:8000/updtaingthestaff", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrftoken,
+      },
+      body: formdata,
+    });
 
-  },
-  body:formdata
-})
+    const res = await result.json();
+    console.log(res);
+    if (res.datta) {
+      toast.success("Updated Successfully", {
+        containerId: "A",
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        transition: Flip,
+      });
+   setTimeout(() => {
+    navigate("/staff")
+   }, 1000);
+    
+    }
   };
 
   const settingvalues = (e) => {
@@ -41,6 +63,8 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
     setipno(e.inputnumber);
     setdob(e.dob);
     setdoa(e.doa);
+    setaccno(e.accountnumber);
+    setifsccode(e.ifsccode);
   };
 
   const [id, setid] = useState();
@@ -90,7 +114,7 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
   const [aadhar, setaadhar] = useState();
   const [uan, setuan] = useState();
   const [accno, setaccno] = useState();
-  const[ifsccode,setifsccode]=useState()
+  const [ifsccode, setifsccode] = useState();
 
   const [doa, setdoa] = useState(null);
   const [dob, setdob] = useState(null);
@@ -114,8 +138,6 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
     formdata.append("accno", accno);
     formdata.append("ifsccode", ifsccode);
 
-
-
     const result = await fetch("http://localhost:8000/addstaff", {
       method: "POST",
       headers: {
@@ -137,7 +159,7 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
 
   return (
     <section className="bg-[#f5f5f5] h-screen">
-      <Nav />
+      <Nav text={"staff"} />
       <div className="container p-4 px-10 py-2">
         <ToastContainer />
         <section class="bg-white box-shadows-nav p-6 rounded-md px-4 z-0">
@@ -194,7 +216,7 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
                   <input
                     type=""
                     placeholder="Enter Account number"
-                    value={name}
+                    value={accno}
                     onChange={(e) => setaccno(e.target.value)}
                     name="acoountnumber"
                     required
@@ -206,9 +228,9 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
                     IFSC code : *
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     onChange={(e) => setifsccode(e.target.value)}
-                    value={aadhar}
+                    value={ifsccode}
                     name="ifsccode"
                     required
                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm  focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -310,6 +332,7 @@ const result=await fetch("http://localhost:8000/updtaingthestaff",{
           </section>
         </div>
       </div>
+      <ToastContainer containerId="A" theme="colored" transition={Flip} />
     </section>
   );
 }

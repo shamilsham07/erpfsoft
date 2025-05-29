@@ -2,13 +2,18 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny 
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserAccount
 from .models import Staff
 from.models import staffwage
+from django.db.models import Sum
 from.models import epfcalculation
 import math
+from openpyxl.styles import Alignment, Font
+from openpyxl.utils import get_column_letter
+from io import BytesIO
+from openpyxl import Workbook
 from .serializer import MyModelSerializer
 from datetime import datetime, timedelta
 from django.core.exceptions import ObjectDoesNotExist
@@ -184,7 +189,11 @@ def getthedataforupdate(request):
             "aadhar":staff.aadhar,
             "gender":staff.gender,
             "doa":staff.DateOfAppointment,
-            "inputnumber":staff.inputnumber   
+            "inputnumber":staff.inputnumber,
+            "accountnumber":staff.accountnumber,
+            "ifsccode":staff.ifsccode,
+             "id":id,
+               
               
         }
         return JsonResponse({"data":staffdata},status=200)
@@ -200,10 +209,30 @@ def getthedataforupdate(request):
 def updtaingthestaff(request):
     try:
         data=request.data
+        print(data)
+        id=data.get("id")
+        print(id)
         name=data.get("name")
-        ipno=data.get("")
+        ipno=data.get("ipno")
+        uan=data.get("UAN")
+        aadhar=data.get('aadhar')
+        gender=data.get("gender")
+        accno=data.get("accno")
+        ifsccode=data.get("ifsccode")
+        print(name)
         
-        print("hi iika")
+        if id:
+            print("hellll")
+            staff=Staff.objects.get(id=id)
+            staff.Name=name
+            staff.UAN=uan
+            staff.inputnumber=ipno
+            staff.accountnumber=accno
+            staff.gender=gender
+            staff.ifsccode=ifsccode
+            staff.aadhar=aadhar
+            staff.save()
+            
         
         return JsonResponse({"datta":"good"},status=200)
     except Exception as e:
@@ -274,25 +303,60 @@ def gettotaldetails(request):
         date=data.get("date")
         print(date)
         wageData = []
-        if date:
-            staffs=staffwage.objects.filter(date=date)
-            
+        if staffwage.objects.filter(date=date).exists():
+            staffs=staffwage.objects.filter(date=date).order_by("id")
+            print(staffs)    
+            print("hi")
             for staff in staffs:
+                staffName=Staff.objects.get(id=staff.staffid_id)
+                
                 staff_wage = epfcalculation.objects.get(wage=staff)
+              
                 wageData.append({
                     'id':staff.id,
+                    "gross":staff.wage,
                     'epf':staff_wage.epf,
                     "er":staff_wage.er,
                     "eps":staff_wage.eps,
                     "edli":staff_wage.edli,
                     "ee":staff_wage.ee,
-                    'name':staffs.name,
+                    'name':staffName.Name,
+                    'uan':staffName.UAN,
+                    'eps_employer':staff_wage.eps_employer,
+                    "attendence":staff.staffattendence,
+                    "ncp_days":staff_wage.ncp_days
                     
                     
                 })
-        print("ikka")
-        return JsonResponse({"data":wageData})
+               
+            return JsonResponse({"data":wageData})
+        
+        else:
+            print("shamil")
+            print(date)
+            staff=Staff.objects.all().order_by("id")    
+            print("tghe",staff)
+           
+            wagedata=[]
+            for staffs in staff:
+                wagedata.append({
+                    "name":staffs.Name,
+                    "uan":staffs.UAN,
+                    "gross":0,
+                    "er":0,
+                    "epf":0,
+                    "eps":0,
+                    "edli":0,
+                    "eps":0,
+                    'eps_employer':0,
+                    "id":staffs.id,
+                    "attendence":0,
+                    "ncp_days":0
+
+                })
+            return JsonResponse({"afterdate":wagedata},)
     except Exception as e:
+        print(e)
         return JsonResponse({"error":"something fishy"})     
     
 
@@ -315,52 +379,46 @@ def SaveTheWage(request):
 @permission_classes([AllowAny])  
 def savingorupdatewage(request):
     try:
-        print("hhhr8wi")
         data=request.data
+        print("hellooo")
         datas=data.get("details")
         print(datas)
         getdate=data.get("date")
         print("    ",getdate)
         date=staffwage.objects.filter(date=getdate).exists()
-        if date:
-           for items in datas:
-               id=items.get("id")
-               wage=items.get("gross")or 0
-               epf=items.get("epf")or 0
-               eps=items.get("eps")or 0
-               edli=items.get("edli")or 0
-               ee=items.get("ee")or 0
-               eps_employer=items.get("eps_employer")or 0
-               er=items.get("er")or 0
-               
-               if wage:
-                   wage=int(wage)
-               itemisset=staffwage.objects.filter(staffid_id=id,date=getdate).exists()
-               
-               if itemisset:
-                   gettheitem=staffwage.objects.get(staffid_id=id,date=getdate)
-                   if wage:
-                       gettheitem.wage=wage
-                       gettheitem.save()
-                   getwageid=gettheitem.id
-                   updatingepf=epfcalculation.objects.get(wage_id=getwageid)
-                   print(updatingepf)
-                   print(epf)
-                   if epf:
-                       updatingepf.epf=epf
-                   if eps:
-                       updatingepf.eps=eps
-                   if edli:
-                       updatingepf.edli=edli
-                   if ee:
-                       updatingepf.ee=ee
-                   if eps_employer:
-                       updatingepf.eps_employer=eps_employer
-                   if er:
-                       updatingepf.er=er
-                   updatingepf.save()
-                    
-           return JsonResponse({"good":"baddddddddddddddddddddd"})
+        print("shamil",date)
+        if date:    
+            for items in datas:
+                id=items.get("id")
+                gross=items.get("gross")or 0
+                epf=items.get("epf")or 0
+                er=items.get("er")or 0
+                eps=items.get("eps")or 0
+                edli=items.get("edli")or 0
+                ncp_days=items.get("ncp_days")
+                attendence=items.get("attendence")
+                ee=items.get("ee")or 0
+                eps_employer=items.get("eps_employer")or 0
+                
+                
+                if id:
+                    if staffwage.objects.filter(id=id).exists():
+                        staff=staffwage.objects.get(id=id)
+                        staff.staffattendence=attendence
+                        staff.wage=gross
+                        staff.save()
+                        staff_wage=epfcalculation.objects.get(wage=staff)
+                        staff_wage.epf=epf
+                        staff_wage.eps=eps
+                        staff_wage.er=er
+                        staff_wage.edli=edli
+                        staff_wage.ee=ee
+                        staff_wage.ncp_days=ncp_days
+                        staff_wage.eps_employer=eps_employer
+                        staff_wage.save()
+                
+            return JsonResponse({"good":"baddddddddddddddddddddd"})   
+        
                
                
         else:
@@ -372,6 +430,8 @@ def savingorupdatewage(request):
                 ee=items.get("ee")or 0
                 eps_employer=items.get("eps_employer")or 0
                 er=items.get("er")or 0
+                ncp_days=items.get("ncp_days")or 0
+                attendence=items.get("attendence")or 0
 
 
                 
@@ -383,15 +443,267 @@ def savingorupdatewage(request):
                 else:
                     wage = 0
                 if id:
-                    staffwage.objects.create(staffid_id=id,wage=wage,date=getdate)
+                    staffwage.objects.create(staffid_id=id,wage=wage,date=getdate,staffattendence=attendence)
                     wages=staffwage.objects.get(staffid_id=id,date=getdate)
                     theid=wages.id
                     print("ererer",theid)
-                    epfcalculation.objects.create(staffid_id=id,wage_id=theid,date=getdate,epf=epf,eps=eps,edli=edli,ee=ee,eps_employer=eps_employer,er=er)
+                    epfcalculation.objects.create(staffid_id=id,wage_id=theid,date=getdate,epf=epf,eps=eps,edli=edli,ee=ee,eps_employer=eps_employer,er=er,ncp_days=ncp_days)
                     
                     
         return  JsonResponse({"data":"mesage recieved succesfuuly"})
     except Exception as e:
         print(e)
         return JsonResponse({"eroor":"errrororororo"})
+    
+    
+    
+    
+@api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])  
+def goandfetchdata(request):
+    try:
+        print("hello")
+        data=request.data
+        date=data.get("date")
+        print(date)
+        staff=staffwage.objects.filter(date=date).order_by("id")or None
+        print(staff)
+        wagedata=[]
+        if staff:
+            for staffs in staff:
+                id=staffs.staffid_id
+                print(id)
+                if id:
+                    staff_detail=Staff.objects.get(id=id)
+                    name=staff_detail.Name  
+                    uan=staff_detail.UAN 
+                wage=staffs.wage
+                staff_wage=epfcalculation.objects.get(wage=staffs)  
+                print("helll")     
+                print(staff_wage)
+                epf=staff_wage.epf
+                print(epf)
+                eps=staff_wage.eps
+                edli=staff_wage.edli   
+                ee=staff_wage.ee
+                eps_employer=staff_wage.eps_employer   
+                er=staff_wage.er
+                
+                ncp_days=staff_wage.ncp_days
+                refund=staff_wage.refund
+                
+                wagedata.append({
+                    "name":name,
+                    "uan":uan,
+                    "date":date,
+                    "gross":wage,
+                    "epf":epf,
+                    "eps":eps,
+                    "edli":edli,
+                    "ee":ee,
+                    "eps_employer":eps_employer,
+                    "er":er,
+                    "ncp_days":ncp_days,
+                    "refund":refund,
+                    "id":staff_wage.id
+                    
+                    
+                })
+            
+            print("wagedate",wagedata)        
+            return JsonResponse({"data":wagedata})    
+                
+                
+            
+        else:
+            print("helloo")
+        
+        return JsonResponse({"message":"great"})
+    except Exception as e:
+        print(e)
+        return JsonResponse({"error":"something went wrong"})
+    
+ 
+@api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])     
+def calenderdata(request):
+    try:
+        data=request.data
+        date=data.get("date")
+        print(date)
+        
+        if staffwage.objects.filter(date=date).exists():
+            staffs=staffwage.objects.filter(date=date).order_by("id")      
+            wagedata=[]
+            index=0
+            for staff in staffs:
+                gross=staff.wage
+                date=staff.date
+                staff_wage=epfcalculation.objects.get(wage=staff)
+                print(staff_wage)
+                print(staff_wage.epf)
+                epf=staff_wage.epf
+                eps=staff_wage.eps
+                edli=staff_wage.edli   
+                ee=staff_wage.ee
+                eps_employer=staff_wage.eps_employer   
+                er=staff_wage.er
+                ncp_days=staff_wage.ncp_days
+                refund=staff_wage.refund
+                index=index+1
+                
+                staff_obj=staff.staffid
+                
+                wagedata.append({
+                    "name":staff_obj.Name,     
+                    "epf":epf,
+                    "eps":eps,
+                    "gross":gross,
+                    "date":date,
+                    "edli":edli,
+                    "ee":ee,
+                    "eps_employer":eps_employer,
+                    "er":er,
+                    "ncp_days":ncp_days,
+                    "refund":refund,
+                    "index":index
+                    
+                })
+                
+            return JsonResponse({"data":wagedata})
+            
+        else:
+            print("hhhh")
+            return JsonResponse({"error":"something went wrong"})
+    except Exception as e:
+        print(e)
+        return JsonResponse({"error":"something went wrong"})
+    
+@api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])     
+def onDownload(request):
+    data=request.data
+    date=data.get("date")
+    sheet=data.get("sheet")
+    print(sheet)
+    print(date)
+    if staffwage.objects.filter(date=date).exists():
+      if sheet=="sheet1":  
+        headers = [
+                "UAN", "MEMBERS NAME", "GROSS WAGES", "EPF WAGES", "EDLI WAGES",
+                "EPF CONTRIBUTED", "EPS CONTRIBUTED", "ER", "NCP_DAYS", "REFUND"
+            ]
+        wb = Workbook()
+        ws = wb.active
+        print("hello")
+        staff_details=staffwage.objects.filter(date=date).order_by('id')
+        print(staff_details)
+        details=[]
+        for staff in staff_details:
+            
+            gross=staff.wage
+            name_details=staff.staffid
+            name=name_details.Name   
+            wage_details=epfcalculation.objects.get(wage=staff)
+            print(gross)   
+            
+            print(name)
+            details.append([name_details.UAN,name,gross,wage_details.epf,wage_details.edli,wage_details.ee,wage_details.er,wage_details.ncp_days,wage_details.refund])
+            
+     
+         
+        
+      else:    
+            print("hhhhh") 
+            wb = Workbook()
+            ws = wb.active 
+            staff_details=staffwage.objects.filter(date=date).order_by("id")
+            headers=[
+                    "input number","Name","attendence","wage","reason"
+                ]
+            details=[]
+            for staff in staff_details:
+                print(staff.staffid)
+                name=staff.staffid.Name
+                ip=staff.staffid.inputnumber
+                attendence=staff.staffattendence
+                gross=staff.wage
+                if attendence:
+                    reason=""
+                else:
+                    reason=1
+                details.append([
+                    ip,name,attendence,gross,reason
+                ])
+            
+    for col_num, column_title in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num, value=column_title)
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        col_letter = cell.column_letter
+        ws.column_dimensions[col_letter].width = max(len(column_title) + 2, 15)
+
+    # Write data rows
+    for row in details:
+        ws.append(row)
+
+    ws.freeze_panes = "A2"
+
+    # Save workbook
+    file_stream = BytesIO()
+    wb.save(file_stream)
+    file_stream.seek(0)
+
+    response = HttpResponse(
+        file_stream,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="sample.xlsx"'
+    return response
+     
+    
+          
+          
+@api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])     
+def getcountofusers(request):
+    data=request.data
+    date=data.get("date")
+    print(date)
+    staff=[]
+    
+    try:
+        if date:
+                staff_details=staffwage.objects.filter(date=date)
+                print(staff_details)
+               
+                total_epf = 0
+                total_attendence=0
+                for staffs in staff_details:
+                    total_attendence+=int(staffs.staffattendence)
+                    wage_details=epfcalculation.objects.get(wage=staffs)
+                   
+                    total_epf += wage_details.epf
+               
+                staff.append({  
+                "wage": staffwage.objects.filter(date=date).aggregate(total=Sum("wage"))['total'],
+                "total_epf":total_epf,
+                "attendence":total_attendence,
+               
+            
+                })
+                print(staff)
+                
+        data=Staff.objects.all().count()
+        print(data)
+        return JsonResponse({"message":data,"totalwage":staff})
+    except Exception as e:
+        print(e)
+        return JsonResponse({"error":"something went wrong"})
+  
+     
     

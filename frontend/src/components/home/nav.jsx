@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate} from "react-router-dom";
 import "./home.css";
 import Cookies from "universal-cookie";
@@ -6,7 +6,8 @@ import { useState } from "react";
 import logo from "../../assets/new-logo.png";
 import { authenticate } from "../redux/reducer";
 import { useDispatch } from "react-redux";
-export default function Nav() {
+export default function Nav(title) {
+  console.log("i",title)
   const navigation = useNavigate();
   const dispatch = useDispatch();
   const [activeclass, setactive] = useState('null');
@@ -33,6 +34,14 @@ export default function Nav() {
     console.log("hi");
     navigation(-1);
   };
+
+useEffect(()=>{
+  console.log(title.text)
+  console.log("thetitle",title)
+  setactive(title.text)
+
+},[title])
+
 
   return (
     <nav className="">
@@ -78,7 +87,7 @@ export default function Nav() {
                 onClick={(e) => {
                   Handler(e, "Wage");
                 }}
-                className={activeclass == "Wage" ? "active" : ""}
+                className={activeclass == "wage" ? "active" : ""}
               >
                 wage
               </li>

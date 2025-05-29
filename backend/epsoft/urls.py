@@ -17,6 +17,14 @@ urlpatterns = [
     path("gettotaldetails",views.gettotaldetails),
     path("SaveTheWage",views.SaveTheWage),
     path("savingorupdatewage",views.savingorupdatewage),
+    path("goandfetchdata",views.goandfetchdata),
+    path("calenderdata",views.calenderdata),
+    path("onDownload",views.onDownload),
+    path("getcountofusers",views.getcountofusers),
+    
+
+    
+
     
     
 

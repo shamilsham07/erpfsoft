@@ -198,7 +198,7 @@ export default function Staffs() {
 
   return (
     <div className="bg-[#f5f5f5] w-full h-[screen] m-0 p-0">
-      <Nav />
+      <Nav  text={"staff"}/>
       <div className="container  px-10  relative">
         {modalactive && (
           <div className="absolute flex justify-center items-center w-full">

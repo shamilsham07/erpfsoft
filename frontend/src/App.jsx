@@ -16,7 +16,7 @@ import Cookies from "universal-cookie";
 import Wage from "./components/wage/wage";
 import Addwage from "./components/wage/addwage";
 import { Routes, Route } from "react-router-dom";
-
+import Loader from "./components/loader/loader";
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -67,6 +67,8 @@ function App() {
       <Routes>
         <Route path="/login" element={!authentication ? <Login /> : <Home />} />
         <Route path="/usersignup" element={<Usersignup />} />
+        <Route path="/loader" element={<Loader />} />
+
         <Route path="/" element={authentication ? <Home /> : <Login />} />
         <Route path="/nav" element={authentication ? <Nav /> : <Login />} />
         <Route
