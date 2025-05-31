@@ -21,11 +21,10 @@ urlpatterns = [
     path("calenderdata",views.calenderdata),
     path("onDownload",views.onDownload),
     path("getcountofusers",views.getcountofusers),
-    
+    path("goandgetdata",views.goandgetdata),
+    path("recievedatabasedon",views.recievedatabasedon),   
+    path("getgraph",views.getgraph),   
 
-    
-
-    
     
 
 ]

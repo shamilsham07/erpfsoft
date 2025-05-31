@@ -10,6 +10,7 @@ from.models import staffwage
 from django.db.models import Sum
 from.models import epfcalculation
 import math
+import json
 from openpyxl.styles import Alignment, Font
 from openpyxl.utils import get_column_letter
 from io import BytesIO
@@ -675,7 +676,6 @@ def getcountofusers(request):
     date=data.get("date")
     print(date)
     staff=[]
-    
     try:
         if date:
                 staff_details=staffwage.objects.filter(date=date)
@@ -704,6 +704,113 @@ def getcountofusers(request):
     except Exception as e:
         print(e)
         return JsonResponse({"error":"something went wrong"})
-  
-     
     
+    
+@api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])     
+def goandgetdata(request):
+    try:
+        print("se")
+        data=request.data
+        date=data.get("date")
+        
+        print(date)
+        staff=staffwage.objects.filter(date=date).exists()
+        if staff:
+             wages=0
+             finalepf=0
+             staffs=staffwage.objects.filter(date=date)
+             attendence=0
+             for epf in staffs:
+                 epfs=epfcalculation.objects.get(wage=epf)
+                 finalepf+=epfs.epf          
+             for staffin in staffs:
+                  attendence+=staffin.staffattendence
+                  wages+=staffin.wage
+            
+                             
+             data=[{
+                 "wage":wages,
+                 "epf":finalepf,
+                 "attendence":attendence
+             }]
+             print(data)
+             return JsonResponse({"message":data})                              
+        else:
+            return JsonResponse({'error':"something went wrong"})
+        
+    except Exception as e:
+        print(e)
+        return JsonResponse({"error":"something went wrong"})
+  
+@api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])      
+def recievedatabasedon(request):
+    try:
+        data=request.data
+        date=data.get("date")
+        staff=staffwage.objects.filter(date=date).order_by("id")
+        details=[]
+        if staff.exists():
+            for data in staff:
+                name=data.staffid.Name
+                attendence=data.staffattendence
+                gender=data.staffid.gender
+                doa=data.staffid.DateOfAppointment
+                wage=data.wage
+                details.append({     
+                    "name":name,
+                    "attendence":attendence,
+                    "gender":gender,
+                    "doa":doa,
+                    "wage":wage,
+                })
+            return JsonResponse({"message":details})   
+                
+            
+        else:
+            print("ssss")
+          
+        print(date)     
+        print("hello")   
+    except Exception as e:
+        print(e)
+        return JsonResponse({"error":"something went wrong"})
+    
+    
+    
+@api_view(["POST"])
+@authentication_classes([]) 
+@permission_classes([AllowAny])     
+def getgraph(request):
+    try:
+        print("hellopppppppppppppppppppppppppppppp")
+        data =request.data
+        date=data.get("date")
+        print("dshiueg",date)
+        wage=0
+        details=[]
+        
+        for dates in date:
+            wage=0
+            print("hhhhhhhhhhhhhhhhhhhhhhhhhhhh")
+            staff=staffwage.objects.filter(date=dates)
+            print(staff.exists())
+            if staff.exists():
+                print("hello")                
+                for stas in staff:
+                    print(stas.wage)
+                    wage+=stas.wage 
+            details.append({
+                        "date":dates,
+                        "wage":wage
+                    }) 
+                    
+                                           
+        print("kkk",wage)                            
+        return JsonResponse({"message":details})                  
+    except Exception as e:
+        print(e)
+        return JsonResponse({'error':"something went wrong"})

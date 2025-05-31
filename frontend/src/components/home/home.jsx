@@ -26,75 +26,210 @@ ChartJS.register(
   Legend
 );
 export default function Home() {
-  const[count,setCount]=useState(0)
-  const[totalwage,settotalwage]=useState(0)
-  const[total_epf,settotal_epf]=useState(0)
-  const[attendence,setAttendence]=useState(0)
-  const options = {};
-  const linechartdata = {
-    labels: [
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "staurday",
-      "sunday",
-    ],
-    datasets: [
-      {
-        label: "Steps",
-        data: [3000, 200, 1010, 500, 900, 100, 90],
-        borderColor: "#3f1d95",
-        border: 1,
-        backgroundColor: "#fafafa",
-      },
-    ],
+  const [name, setname] = useState(null);
+  const [details, setdetails] = useState([]);
+
+  const [count, setCount] = useState(0);
+  const[moneths,setmoneths]=useState('')
+  const [totalwage, settotalwage] = useState(0);
+  const [total_epf, settotal_epf] = useState(0);
+  const [attendence, setAttendence] = useState(0);
+  const [CurrentDate, setCurrentDate] = useState();
+  const[getdates,setgetdates]=useState([])
+  const[chartdata,setchartdata]=useState(null)
+
+  const [settingmonth,setsettingmonth]=useState([])
+
+const getgraph=async(e)=>{
+console.log(e)
+const month=e.getMonth()
+console.log(months[month])
+console.log(months.length)
+const temp=[]
+const array=[]
+ for(let i=month;i<months.length;i++){
+  console.log("hi")
+  temp.push(months[i])
+  array.push(`${i+1}/${e.getFullYear()}`) 
+ }
+ setsettingmonth(temp.slice(0,3))
+ console.log(temp.slice(0,3))
+ const gg=array.slice(0,3)
+ setgetdates(gg)
+ console.log(array.slice(0,3))
+ const result=await fetch("http://localhost:8000/getgraph",{
+  method:"POST",
+  headers:{
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+  },
+  body:JSON.stringify({date:gg})
+ })
+ const res=await result.json()
+ console.log(res)
+ const data=res.message
+ console.log(settingmonth)
+ 
+  const labels=temp.slice(0,3).map((item)=>item)
+  const values=data.map((item)=>item.wage)
+
+
+    setchartdata({
+      labels: labels,
+      datasets: [
+        {
+          label: "Monthly Wages",
+          data: values,
+          backgroundColor: "#3f1d95",
+          borderColor: "#3f1d95",
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true,
+        }
+      ]
+    });
   };
 
-const getcountofusers=async()=>{
-  const date=new Date();
-  const month=date.getMonth()+1
-  const year=date.getFullYear()
-  const finaldate=`${month}/${year}`
-  const result=await fetch("http://localhost:8000/getcountofusers",{
-    method:"POST",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const options = {};
+
+  const goandgetdata = async (e) => {
+    setdate(e.target.value);
+    console.log(e.target.value);
+    const month = e.target.value.getMonth() + 1;
+   setmoneths(months[e.target.value.getMonth()+1])
+    const year = e.target.value.getFullYear();
+    const finaldate = `${month}/${year}`;
+
+    const result = await fetch("http://localhost:8000/goandgetdata", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-CSRFToken": csrftoken,
       },
-          body:JSON.stringify({'date':finaldate})
-        })
+      body: JSON.stringify({
+        date: finaldate,
+      }),
+    });
+    const res = await result.json();
+    console.log(res);
+    if (res.message) {
+      console.log(res.message);
+      settotalwage(res.message[0].wage);
+      settotal_epf(res.message[0].epf);
+      setAttendence(res.message[0].attendence);
+    } else {
+      settotalwage(0);
+      settotal_epf(0);
+      setAttendence(0);
+    }
+  };
 
+  async function recievedatabasedon(e,id) {
+    if(id){
+          const month = e.getMonth() + 1;
+    const year = e.getFullYear();
+    const finaldate = `${month}/${year}`;
+    const result = await fetch("http://localhost:8000/recievedatabasedon", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+      body: JSON.stringify({ date: finaldate }),
+    });
+    const res = await result.json();
+    console.log(res);
+    if (res.message) {
+      setdetails(res.message);
+    } else {
+      setdetails([]);
+    }
 
-
-  const res=await result.json()
-  console.log(res)
-  if(res.message){
-    setCount(res.message)
-    console.log("good",res.totalwage[0].wage)
-    settotalwage(res.totalwage[0].wage)
-    settotal_epf(res.totalwage[0].total_epf)
-    setAttendence(res.totalwage[0].attendence)
+    }
+    else{
+        console.log(e.target.value);
+    const month = e.target.value.getMonth() + 1;
+    const year = e.target.value.getFullYear();
+    const finaldate = `${month}/${year}`;
+    const result = await fetch("http://localhost:8000/recievedatabasedon", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+      body: JSON.stringify({ date: finaldate }),
+    });
+    const res = await result.json();
+    console.log(res);
+    if (res.message) {
+      setdetails(res.message);
+    } else {
+      setdetails([]);
+    }
   }
-  else{
-    setCount(0)
-  }
 
-}
-  useEffect(()=>{
-    getcountofusers()
+    }
+  
+  
 
-  },[])
+  const getcountofusers = async () => {
+    const date = new Date();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const finaldate = `${month}/${year}`;
+    const result = await fetch("http://localhost:8000/getcountofusers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+      },
+      body: JSON.stringify({ date: finaldate }),
+    });
+
+    const res = await result.json();
+    console.log(res);
+    if (res.message) {
+      setCount(res.message);
+      console.log("good", res.totalwage[0].wage);
+      settotalwage(res.totalwage[0].wage);
+      settotal_epf(res.totalwage[0].total_epf);
+      setAttendence(res.totalwage[0].attendence);
+    } else {
+      setCount(0);
+    }
+  };
+  useEffect(() => {
+    getcountofusers();
+    getgraph(new Date())
+    recievedatabasedon(new Date(),2)
+  }, []);
 
   const [date, setdate] = useState();
   useEffect(() => {
     console.log(new Date());
     setdate(new Date());
+    setCurrentDate(new Date());
   }, []);
   return (
-    <section className="relative bg-[#f5f5f5] h-[100vh]">
-      <Nav text={""} className="fixed" />
+    <section className="relative bg-[#f5f5f5] ">
+
+    <Nav text={""} className="" />
+
 
       <div className="px-10">
         <section>
@@ -107,6 +242,7 @@ const getcountofusers=async()=>{
               view="month"
               className="dating"
               dateFormat="mm/yy"
+              onChange={(e) => goandgetdata(e)}
             />
           </div>
           <section className="grid grid-cols-2 gap-5">
@@ -156,13 +292,16 @@ const getcountofusers=async()=>{
                 <div className="bg-theme p-2 rounded-xs text-center text-white">
                   <h3 className="capitalize font-bold text-sm">details</h3>
                 </div>
-                <div className="flex mt-3">
+                <div className="flex mt-3 items-center">
                   <label htmlFor="" className="capitalize text-sm">
                     scehduled date:
                   </label>
-                  <input
-                    type="date"
-                    className="w-full border-2 rounded border-[#efefef] bg-[#fafafa] px-2"
+                  <Calendar
+                    value={date}
+                    onChange={(e) => recievedatabasedon(e)}
+                    view="month"
+                    className="w-full date-format"
+                    dateFormat="mm/yy"
                   />
                 </div>
                 <div className="px-40 mt-5">
@@ -171,9 +310,9 @@ const getcountofusers=async()=>{
  border-1 border-gray-900"
                   ></div>
                 </div>
-                <div class="relative overflow-x-auto mt-2">
-                  <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50  dark:text-gray-400">
+                <div class="relative mt-2 max-h-96 overflow-y-auto">
+                  <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+    <thead className="sticky top-0 z-10 bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400">
                       <tr>
                         <th scope="col" class="px-6 py-3">
                           Name
@@ -192,57 +331,44 @@ const getcountofusers=async()=>{
                         </th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 text-gray-900">
-                        <td
-                          scope="row"
-                          class="px-6 py-4 font-medium  whitespace-nowrap dark:text-white"
+                    <tbody className="overflow-y-auto">
+                      {details.map((item, index) => (
+                        <tr
+                          class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 text-gray-900"
+                          key={index}
                         >
-                          shamil
-                        </td>
-                        <td class="px-6 py-4">1</td>
-                        <td class="px-6 py-4">m</td>
-                        <td class="px-6 py-4">$2999</td>
-                        <td class="px-6 py-4">400</td>
-                      </tr>
-                      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
-                        <th
-                          scope="row"
-                          class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                        >
-                          Microsoft Surface Pro
-                        </th>
-                        <td class="px-6 py-4">White</td>
-                        <td class="px-6 py-4">Laptop PC</td>
-                        <td class="px-6 py-4">$1999</td>
-                        <td class="px-6 py-4">
-                          <a
-                            href="#"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                          <td
+                            scope="row"
+                            class="px-6 py-4 font-medium  whitespace-nowrap dark:text-white"
                           >
-                            Edit
-                          </a>
-                        </td>
-                      </tr>
-                      <tr class="bg-white dark:bg-gray-800">
-                        <th
-                          scope="row"
-                          class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                        >
-                          Magic Mouse 2
-                        </th>
-                        <td class="px-6 py-4">Black</td>
-                        <td class="px-6 py-4">Accessories</td>
-                        <td class="px-6 py-4">$99</td>
-                        <td class="px-6 py-4">
-                          <a
-                            href="#"
-                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                            {item.name}
+                          </td>
+                          <td
+                            scope="row"
+                            class="px-6 py-4 font-medium  whitespace-nowrap dark:text-white"
                           >
-                            Edit
-                          </a>
-                        </td>
-                      </tr>
+                            {item.attendence}
+                          </td>{" "}
+                          <td
+                            scope="row"
+                            class="px-6 py-4 font-medium  whitespace-nowrap dark:text-white"
+                          >
+                            {item.gender}
+                          </td>{" "}
+                          <td
+                            scope="row"
+                            class="px-6 py-4 font-medium  whitespace-nowrap dark:text-white"
+                          >
+                            {item.doa}
+                          </td>{" "}
+                          <td
+                            scope="row"
+                            class="px-6 py-4 font-medium  whitespace-nowrap dark:text-white"
+                          >
+                            {item.wage}
+                          </td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -255,7 +381,11 @@ const getcountofusers=async()=>{
                     Leaderboard
                   </h4>
                 </div>
-                <Line options={options} data={linechartdata} />
+                {
+                  chartdata&&
+                <Line options={options} data={chartdata} />
+
+                }
               </div>
             </div>
           </section>
